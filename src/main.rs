@@ -7,11 +7,11 @@ fn main() {
         print!("$ ");
         io::stdout().flush().unwrap();
 
-        io::stdin().read_line(&mut command).unwrap();
-        let command = command.trim();
-        if command.is_empty() {
-            continue;
-        }
-        println!("{command}: not found");
+        match io::stdin().read_line(&mut command) {
+            Ok(_) if command.is_empty() => continue,
+            Ok(_) if command.trim() == "exit" => return,
+            Ok(_) => println!("{}: command not found", command.trim()),
+            Err(err) => println!("error: {err}"),
+        };
     }
 }
