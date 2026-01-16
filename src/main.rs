@@ -1,5 +1,7 @@
 #[allow(unused_imports)]
+use std::env;
 use std::io::{self, Write};
+use std::os::unix::fs::PermissionsExt;
 
 fn main() {
     let builtins = vec!["exit", "echo", "type"];
@@ -39,8 +41,30 @@ fn find_type(args: &str, builtins: &Vec<&str>) {
         if builtins.contains(arg) {
             println!("{arg} is a shell builtin");
         } else {
-            println!("{arg}: not found")
+            if let Some(paths) = env::var_os("PATH") {
+                let mut found = false;
+
+                for path in env::split_paths(&paths) {
+                    let full_path = path.join(arg);
+                    if full_path.exists() {
+                        if let Ok(metadata) = full_path.metadata() {
+                            let permissions = metadata.permissions();
+
+                            if permissions.mode() & 0o111 != 0 {
+                                println!("{arg} is {}", full_path.display());
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if !found {
+                    println!("{arg}: not found");
+                }
+            } else {
+                println!("{arg}: not found");
+            }
         }
     }
-    
 }
