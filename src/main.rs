@@ -8,10 +8,26 @@ fn main() {
         io::stdout().flush().unwrap();
 
         match io::stdin().read_line(&mut command) {
-            Ok(_) if command.is_empty() => continue,
-            Ok(_) if command.trim() == "exit" => return,
-            Ok(_) => println!("{}: command not found", command.trim()),
+            Ok(_) => {
+                let trimmed = command.trim();
+                if trimmed.is_empty() {
+                    continue;
+                }
+
+                match trimmed.split_once(' ') {
+                    Some(("exit", _)) => return,
+                    Some(("echo", args)) => echo(args),
+                    Some((cmd, _)) => println!("{cmd}: command not found"),
+                    None if trimmed == "exit" => return,
+                    None => println!("{trimmed}: command not found"),
+                }
+            }
             Err(err) => println!("error: {err}"),
         };
     }
+}
+
+fn echo(command: 
+    &str) {
+    println!("{command}");
 }
