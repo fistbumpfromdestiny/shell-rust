@@ -5,4 +5,8 @@ fn main() {
     // TODO: Uncomment the code below to pass the first stage
     print!("$ ");
     io::stdout().flush().unwrap();
+
+    let command = io::stdin().read_line(&mut command).unwrap();
+    println!("{command}: not found");
+        
 }
